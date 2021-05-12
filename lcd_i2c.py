@@ -26,7 +26,7 @@ class LCD1602:
       self.ctrl&=~0x02
       i2c.write(0x3e,bytearray([0x80,0x08|self.ctrl]))
   def setCursor(self,x,y):
-    x = (x|0x80) if y==0 else (x|0xc0)
+    x=(x|0x80) if y==0 else (x|0xc0)
     i2c.write(0x3e,bytearray([0x80,x]))
   def display(self,s):
     if s:
