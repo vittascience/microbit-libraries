@@ -68,8 +68,8 @@ class TM1637:
     if colon:segs[1]|=0x80
     self.write(segs)
   def temperature(self,num):
-    if num<-9:self.show('lo')
-    elif num>99:self.show('hi')
+    if num<-9:self.show('-9')
+    elif num>99:self.show('99')
     else:self.write(self.encode_str('{0: >2d}'.format(num)))
     self.write(b'\x63\x39',2)
   def show(self,str,colon=False):
