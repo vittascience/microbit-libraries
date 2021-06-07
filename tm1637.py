@@ -1,5 +1,5 @@
-from utime import sleep_us,sleep_ms
-_SEG=bytearray(b'\x3F\x06\x5B\x4F\x66\x6D\x7D\x07\x7F\x6F\x77\x7C\x39\x5E\x79\x71\x3D\x76\x06\x1E\x76\x38\x55\x54\x3F\x73\x67\x50\x6D\x78\x3E\x1C\x2A\x76\x6E\x5B\x00\x40\x63')
+from utime import sleep_us
+_SEG=bytearray(b'\x3F\x06\x5B\x4F\x66\x6D\x7D\x07\x7F\x6F\x40')
 class TM1637:
   def __init__(self,clk,dio,bright=7):
     self.clk=clk
@@ -55,11 +55,7 @@ class TM1637:
     return segs
   def encode_char(self,char):
     o=ord(char)
-    if o==32:return _SEG[36]
-    if o==42:return _SEG[38]
-    if o==45:return _SEG[37]
-    if o>=65 and o<=90:return _SEG[o-55]
-    if o>=97 and o<=122:return _SEG[o-87]
+    if o==45:return _SEG[10]
     if o>=48 and o<=57:return _SEG[o-48]
     raise ValueError("Character out of range: {:d} '{:s}'".format(o,chr(o)))
   def number(self,num):
@@ -75,18 +71,11 @@ class TM1637:
     if num<-9:self.show('lo')
     elif num>99:self.show('hi')
     else:self.write(self.encode_str('{0: >2d}'.format(num)))
-    self.write([_SEG[38],_SEG[12]],2)
+    self.write(b'\x63\x39',2)
   def show(self,str,colon=False):
     segs=self.encode_str(str)
     if len(segs)>1 and colon:segs[1]|=128
     self.write(segs[:4])
-  def scroll(self,str,delay=250):
-    segs=str if isinstance(str,list) else self.encode_str(str)
-    data=[0]*8
-    data[4:0]=list(segs)
-    for i in range(len(segs)+5):
-      self.write(data[0+i:4+i])
-      sleep_ms(delay)
   def clock(self,time,colon=True):
     h,mn=time
     segs=self.encode_str('{0:0>2d}{1:0>2d}'.format(h,mn))
