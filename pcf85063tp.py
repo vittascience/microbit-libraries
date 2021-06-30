@@ -1,7 +1,8 @@
 from microbit import i2c
 DAYS_OF_WEEK=["MON","TUE","WED","THU","FRI","SAT","SUN"]
-class RTC:
-  def __init__(self,addr=0x51):self._addr=addr
+RTC_HP_I2C_ADDR=0x51
+class RTC_HP:
+  def __init__(self,addr=RTC_HP_I2C_ADDR):self._addr=addr
   def reset(self):i2c.write(self._addr,b'\x00\x58')
   def fillByHMS(self,hour,min,sec):
     self._writeReg(0x04,self._decToBcd(sec))
