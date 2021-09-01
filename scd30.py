@@ -28,7 +28,7 @@ class SCD30:
       buffer[0]=command>>8
       buffer[1]=command&0xff
       buffer[2]=argument>>8
-      buffer[3]=arguments&0xff
+      buffer[3]=argument&0xff
       checkSum=self.calculateCrc(buffer[2],2)
       buffer[4]=checkSum
     return i2c.write(self.addr,buffer)
@@ -36,18 +36,18 @@ class SCD30:
   def read_n_bytes(self,n_bytes):
     return i2c.read(self.addr,n_bytes)
   
-  def readMeasurement(self, data=0):
+  def readMeasurement(self, arg=0):
     self.sendCommand(CMD_READ_MEASUREMENT)
     data=i2c.read(self.addr,18)
-    if data==0:
+    if arg==0:
       struct_co2=ustruct.pack('>BBBB',data[0],data[1],data[3],data[4])
       co2=ustruct.unpack('>f',struct_co2)
       return co2[0]
-    elif data==1:
+    elif arg==1:
       struct_T=ustruct.pack('>BBBB',data[6],data[7],data[9],data[10])
       T=ustruct.unpack('>f',struct_T)
       return T[0]
-    elif data==2:
+    elif arg==2:
       struct_rH=ustruct.pack('>BBBB',data[12],data[13],data[15],data[16])
       rH=ustruct.unpack('>f',struct_rH)
       return rH[0]
