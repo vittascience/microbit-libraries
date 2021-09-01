@@ -2,7 +2,7 @@ from microbit import i2c,sleep
 class SGP30:
   def __init__(self):
     self.serial=self.read([0x36, 0x82],10,3)
-    if self.read([0x20,0x2f],0.01,1)[0]!=0x0020:raise RuntimeError('SGP30 Not detected')
+    if self.read([0x20,0x2f],0.01,1)[0]&0xf0!=0x0020:raise RuntimeError('SGP30 Not detected')
     self.iaq_init()
   def TVOC(self):return self.iaq_measure()[1]
   def baseline_TVOC(self):return self.get_iaq_baseline()[1]
