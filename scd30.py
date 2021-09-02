@@ -29,7 +29,7 @@ class SCD30:
       buffer[1]=command&0xff
       buffer[2]=argument>>8
       buffer[3]=argument&0xff
-      checkSum=self.calculateCrc(buffer[2],2)
+      checkSum=self.calculateCrc(buffer,2)
       buffer[4]=checkSum
     return i2c.write(self.addr,buffer)
   
