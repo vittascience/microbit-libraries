@@ -1,19 +1,19 @@
-import microbit as uBit
+from microbit import *
+import utime
 class DataError(Exception):pass
 class DHT11:
-  def __init__(self,pin):self._pin=pin
+  def __init__(self,pin):self._p=pin
   def read(self):
-    pin=self._pin
     p2bit=self._p2bit()
     buf=bytearray(320)
     l=(len(buf)//4)*4
     for i in range(l,len(buf)):buf[i]=1
-    pin.write_digital(1)
-    uBit.sleep(50)
+    self._p.write_digital(1)
+    utime.sleep_ms(50)
     self._birq()
-    pin.write_digital(0)
-    uBit.sleep(20)
-    pin.set_pull(pin.PULL_UP)
+    self._p.write_digital(0)
+    utime.sleep_ms(20)
+    self._p.set_pull(self._p.PULL_UP)
     if self._gb(p2bit,buf,l)!=l:
       self._ubirq()
       raise Exception("Grab bits failed.")
@@ -26,24 +26,24 @@ class DHT11:
       raise DataError("Too many or too few bits "+str(b))
     dt=self._cb(dt)
     if dt[4]!=self._ccs(dt):raise DataError("Checksum invalid.")
-    return (dt[2]+(dt[3]/10),dt[0]+(dt[1]/10))
+    return dt[2]+(dt[3]/10),dt[0]+(dt[1]/10)
   def _p2bit(self):
-    pin=self._pin
-    if pin==uBit.pin0:s=3
-    elif pin==uBit.pin1:s=2
-    elif pin==uBit.pin2:s=1
-    elif pin==uBit.pin3:s=4
-    elif pin==uBit.pin4:s=5
-    elif pin==uBit.pin6:s=12
-    elif pin==uBit.pin7:s=11
-    elif pin==uBit.pin8:s=18
-    elif pin==uBit.pin9:s=10
-    elif pin==uBit.pin10:s=6
-    elif pin==uBit.pin12:s=20
-    elif pin==uBit.pin13:s=23
-    elif pin==uBit.pin14:s=22
-    elif pin==uBit.pin15:s=21
-    elif pin==uBit.pin16:s=16
+    p=self._p
+    if p==pin0:s=3
+    elif p==pin1:s=2
+    elif p==pin2:s=1
+    elif p==pin3:s=4
+    elif p==pin4:s=5
+    elif p==pin6:s=12
+    elif p==pin7:s=11
+    elif p==pin8:s=18
+    elif p==pin9:s=10
+    elif p==pin10:s=6
+    elif p==pin12:s=20
+    elif p==pin13:s=23
+    elif p==pin14:s=22
+    elif p==pin15:s=21
+    elif p==pin16:s=16
     else:raise ValueError('function not suitable for this pin')
     return s
   @staticmethod
@@ -68,8 +68,8 @@ class DHT11:
     add(r3,0x05)
     lsl(r3,r3,8)
     add(r3,0x10)
-    ldr(r4,[r3, 0])
-    mov(r3,0x01) 
+    ldr(r4,[r3,0])
+    mov(r3,0x01)
     lsl(r3,r0)
     and_(r4,r3)
     lsr(r4,r0)
@@ -102,8 +102,8 @@ class DHT11:
     label(RETURN)
     mov(r0,r5)
   def _parse_dta(self,buf):
-    s,a=2,50
-    b,l,bit_=bytearray(a),0,0
+    s,mb=2,50
+    b,l,bit_=bytearray(mb),0,0
     for i in range(len(buf)):
       c=buf[i]
       l+=1
@@ -134,20 +134,18 @@ class DHT11:
           s=4
           continue
         else:continue
-      if bit_>=a:break
+      if bit_>=mb:break
     if bit_==0:return None
     r=bytearray(bit_)
     for i in range(bit_):r[i]=b[i]
     return r
   def _cb(self,pul):
     st,lgt=1000,0
-    for i in range(0,len(pul)):
+    for i in range(len(pul)):
       l=pul[i]
       if l<st:st=l
       if l>lgt:lgt=l
-    h=st+(lgt-st)/2
-    dt=bytearray(5)
-    did,b=0,0
+    h,dt,did,b=st+(lgt-st)/2,bytearray(5),0,0
     for i in range(len(pul)):
       b=b<<1
       if pul[i]>h:b=b|1
@@ -159,7 +157,7 @@ class DHT11:
   def _ccs(self,dt):return dt[0]+dt[1]+dt[2]+dt[3]&0xff
   def getData(self,d=1):
     t,h=self.read()
-    uBit.sleep(1000)
+    utime.sleep(1)
     if d==1:return t
     elif d==2:return h
-    else: raise ValueError("DHT error: '" + data + "' is not a data option")
+    else: raise ValueError("DHT error: '" + d + "' is not a data option")
