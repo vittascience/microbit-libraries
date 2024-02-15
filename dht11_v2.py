@@ -3,8 +3,7 @@ import utime
 class DHT11:
   def __init__(self,pin):
     self._p=pin
-    self.temp=0
-    self.humid=0
+    self.t,self.h=0,0
   def read(self):
     p2bit=self._p2bit()
     buf=bytearray(320)
@@ -19,19 +18,17 @@ class DHT11:
     self._set_rc(p2bit*4)
     self._gb(p2bit,buf,l)
     self._ubirq()
+    print(buf)
+    if True: return None
     dt=self._parse_dta(buf)
     del buf
     if dt is None or len(dt)!=40:
       if dt is None:b=0
       else:b=len(dt)
       return
-      #print("Too many or too few bits "+str(b))
     dt=self._cb(dt)
-    if dt[4]!=self._ccs(dt):
-        #print("Checksum invalid.")
-        return
-    self.temp=dt[2]+(dt[3]/10)
-    self.humid=dt[0]+(dt[1]/10)
+    if dt[4]!=self._ccs(dt):return
+    self.t,self.h=dt[2]+(dt[3]/10),dt[0]+(dt[1]/10)
   def _p2bit(self):
     p=self._p
     if p==pin0:s=2
@@ -196,6 +193,6 @@ class DHT11:
   def getData(self,d=1):
     self.read()
     utime.sleep(1)
-    if d==1:return self.temp
-    elif d==2:return self.humid
+    if d==1:return self.t
+    elif d==2:return self.h
     else: raise ValueError("DHT error: '" + d + "' is not a data option")

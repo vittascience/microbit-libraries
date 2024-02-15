@@ -55,7 +55,8 @@ class TM1637:
     return segs
   def encode_char(self,char):
     o=ord(char)
-    if o==45:return _SEG[10]
+    if o==32:return 0
+    if o==45:return 64
     if o>=48 and o<=57:return _SEG[o-48]
     raise ValueError("Character out of range: {:d} '{:s}'".format(o,chr(o)))
   def number(self,num):

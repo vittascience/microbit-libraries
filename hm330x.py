@@ -2,7 +2,7 @@ from microbit import i2c,sleep
 class HM330X:
   def __init__(self):
     i2c.init(freq=20000)
-    i2c.write(0x40,bytearray([0x88]))
+    i2c.write(0x40,b'\x88')
   def read_data(self):return i2c.read(0x40,29)
   def check_crc(self,data):
     sum=0
@@ -17,7 +17,7 @@ class HM330X:
     atm_PM2_5=data[12]<<8|data[13]
     atm_PM10=data[14]<<8|data[15]
     return [std_PM1,std_PM2_5,std_PM10,atm_PM1,atm_PM2_5,atm_PM10]
-  def getData(self,select):
+  def getData(self,select=3):
     datas=self.read_data()
     sleep(5)
     if(self.check_crc(datas)==True):

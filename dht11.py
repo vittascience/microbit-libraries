@@ -1,18 +1,19 @@
 from microbit import *
 import utime
-class DataError(Exception):pass
 class DHT11:
-  def __init__(self,pin):self._p=pin
+  def __init__(self,pin):
+    self._p=pin
+    self.t,self.h=0,0
   def read(self):
     p2bit=self._p2bit()
     buf=bytearray(320)
     l=(len(buf)//4)*4
     for i in range(l,len(buf)):buf[i]=1
     self._p.write_digital(1)
-    utime.sleep_ms(50)
+    sleep(50)
     self._birq()
     self._p.write_digital(0)
-    utime.sleep_ms(20)
+    sleep(20)
     self._p.set_pull(self._p.PULL_UP)
     if self._gb(p2bit,buf,l)!=l:
       self._ubirq()
@@ -23,10 +24,10 @@ class DHT11:
     if dt is None or len(dt)!=40:
       if dt is None:b=0
       else:b=len(dt)
-      raise DataError("Too many or too few bits "+str(b))
+      return
     dt=self._cb(dt)
-    if dt[4]!=self._ccs(dt):raise DataError("Checksum invalid.")
-    return dt[2]+(dt[3]/10),dt[0]+(dt[1]/10)
+    if dt[4]!=self._ccs(dt):return
+    self.t,self.h=dt[2]+(dt[3]/10),dt[0]+(dt[1]/10)
   def _p2bit(self):
     p=self._p
     if p==pin0:s=3
@@ -156,8 +157,8 @@ class DHT11:
     return dt
   def _ccs(self,dt):return dt[0]+dt[1]+dt[2]+dt[3]&0xff
   def getData(self,d=1):
-    t,h=self.read()
-    utime.sleep(1)
-    if d==1:return t
-    elif d==2:return h
+    self.read()
+    sleep(1000)
+    if d==1:return self.t
+    elif d==2:return self.h
     else: raise ValueError("DHT error: '" + d + "' is not a data option")
