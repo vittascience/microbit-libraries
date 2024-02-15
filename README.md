@@ -6,7 +6,7 @@ Ce dossier contient les librairies personnalisées pour micro:bit en Python et l
 
 Sources:
 
-dht11.py - https://github.com/rhubarbdog/microbit-dht11 
+dht11.py - https://github.com/rhubarbdog/microbit-dht11
 tm1637.py - https://github.com/mcauser/microbit-tm1637
 my9221.py - https://github.com/mcauser/microbit-my9221
 
