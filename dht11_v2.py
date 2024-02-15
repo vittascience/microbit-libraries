@@ -1,3 +1,12 @@
+#
+# dht11.py - a microbit implementation of dht11
+# author - Phil Hall (rhubarbdog), copyright (c) November 2018
+#
+# this began life as raspberry pi code initial author
+# https://github.com/szazo
+#
+# License - MIT
+
 from microbit import *
 import utime
 class DHT11:
