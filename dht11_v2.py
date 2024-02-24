@@ -27,8 +27,6 @@ class DHT11:
     self._set_rc(p2bit*4)
     self._gb(p2bit,buf,l)
     self._ubirq()
-    print(buf)
-    if True: return None
     dt=self._parse_dta(buf)
     del buf
     if dt is None or len(dt)!=40:
@@ -102,7 +100,7 @@ class DHT11:
   def _gb(r0,r1,r2):
     b(START)
     label(DELAY)
-    mov(r7,0xb4)
+    mov(r7,0xa7)
     label(delay_loop)
     sub(r7,1)
     bne(delay_loop)
@@ -115,8 +113,9 @@ class DHT11:
     add(r3,0x10)
     ldr(r4,[r3,0])
     mov(r3,0x01)
-    lsr(r4,r0)
+    lsl(r3,r0)
     and_(r4,r3)
+    lsr(r4,r0)
     bx(lr)
     label(START)
     mov(r5,0x00)
@@ -145,45 +144,27 @@ class DHT11:
     bne(again)
     label(RETURN)
     mov(r0,r5)
-  def _parse_dta(self,buf):
-    s,mb=2,100
-    b,l,bit_=bytearray(mb),0,0
-    for i in range(len(buf)):
-      c=buf[i]
-      l+=1
-      if s==1:
-        if c==0:
-          s=2
-          continue
-        else:continue
-      if s==2:
-        if c==1:
-          s=3
-          continue
-        else:continue
-      if s==3:
-        if c==0:
-          s=4
-          continue
-        else:continue
-      if s==4:
-        if c==1:
-          l,s=0,5
-          continue
-        else:continue
-      if s==5:
-        if c==0:
-          b[bit_]=l
-          bit_+=1
-          s=4
-          continue
-        else:continue
-      if bit_>=mb:break
+  @staticmethod
+  def _parse_dta(buf):
+    b,l,bit_=bytearray(50),0,0
+    init=True
+    for i in buf:
+      if i==1:l+=1
+      elif bit_==0 and l==0:pass
+      elif init:
+        l=0
+        init=False
+      elif bit_>=50:pass  
+      elif l > 0:
+        b[bit_]=l
+        l=0
+        bit_+=1 
     if bit_==0:return None
     r=bytearray(bit_)
     for i in range(bit_):r[i]=b[i]
     return r
-  def _cb(self,pul):
+  @staticmethod
+  def _cb(pul):
     st,lgt=1000,0
     for i in range(len(pul)):
       l=pul[i]
@@ -198,7 +179,8 @@ class DHT11:
         did+=1
         b=0
     return dt
-  def _ccs(self,dt):return dt[0]+dt[1]+dt[2]+dt[3]&0xff
+  @staticmethod
+  def _ccs(dt):return dt[0]+dt[1]+dt[2]+dt[3]&0xff
   def getData(self,d=1):
     self.read()
     utime.sleep(1)
